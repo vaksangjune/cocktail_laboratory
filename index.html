@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alchemist - Smart Mixology Experience</title>
+    <style>
+        :root {
+            --bg-dark: #121316;
+            --panel-bg: #1c1e22;
+            --panel-border: #2e323b;
+            --primary-burgundy: #800020;
+            --accent-orange: #D96B27;
+            --accent-yellow: #F2A900;
+            --accent-cyan: #00D9FF;
+            --text-primary: #F4F4EE;
+            --text-secondary: #9da3af;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: rgba(28, 30, 34, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--panel-border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-svg {
+            width: 42px;
+            height: 42px;
+        }
+
+        .brand-text h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            line-height: 1;
+        }
+
+        .brand-text span {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            border: 1px solid var(--panel-border);
+            font-size: 0.8rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #10b981;
+            box-shadow: 0 0 8px #10b981;
+        }
+
+        main {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .control-panel, .display-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            padding: 1.8rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--panel-border);
+            padding-bottom: 0.8rem;
+        }
+
+        .panel-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .tag {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            background: rgba(217, 107, 39, 0.15);
+            color: var(--accent-orange);
+            border: 1px solid rgba(217, 107, 39, 0.3);
+        }
+
+        .section-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            margin-bottom: 0.6rem;
+        }
+
+        .grid-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+        }
+
+        .btn-ingredient {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--panel-border);
+            border-radius: 8px;
+            padding: 0.8rem;
+            color: var(--text-primary);
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-ingredient:hover {
+            border-color: var(--accent-orange);
+            background: rgba(217, 107, 39, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .ingredient-info div:first-child {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .ingredient-info div:last-child {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .color-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .chamber-summary {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            border: 1px solid var(--panel-border);
+        }
+
+        .chamber-list {
+            list-style: none;
+            max-height: 120px;
+            overflow-y: auto;
+            margin-top: 0.5rem;
+        }
+
+        .chamber-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            padding: 0.3rem 0;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+        }
+
+        .btn-shake {
+            background: linear-gradient(135deg, var(--primary-burgundy), #a30029);
+            border: none;
+            border-radius: 8px;
+            padding: 1rem;
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(128, 0, 32, 0.4);
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-shake:hover {
+            filter: brightness(1.15);
+            box-shadow: 0 6px 20px rgba(128, 0, 32, 0.6);
+        }
+
+        .btn-shake:disabled {
+            background: #3a3f4d;
+            box-shadow: none;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .glass-view-container {
+            position: relative;
+            height: 320px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle, rgba(28, 30, 34, 1) 0%, rgba(18, 19, 22, 1) 100%);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .metrics-bar {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--panel-border);
+        }
+
+        .metric-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .metric-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .metric-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        footer {
+            border-top: 1px solid var(--panel-border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            background: var(--bg-dark);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand-container">
+            <svg class="logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="5" y="5" width="90" height="90" stroke="#F4F4EE" stroke-width="6"/>
+                <line x1="50" y1="5" x2="50" y2="35" stroke="#F4F4EE" stroke-width="6"/>
+                <polygon points="20,35 80,35 50,70" stroke="#F4F4EE" stroke-width="6" fill="none"/>
+                <line x1="50" y1="70" x2="50" y2="85" stroke="#F4F4EE" stroke-width="6"/>
+                <rect x="35" y="85" width="30" height="10" fill="#F4F4EE"/>
+            </svg>
+            <div class="brand-text">
+                <h1>Alchemist</h1>
+                <span>Bring Your Own Flavor</span>
+            </div>
+        </div>
+        <div class="status-badge">
+            <div class="status-dot"></div>
+            <span>Dispenser Status: <strong>ONLINE</strong></span>
+        </div>
+    </header>
+
+    <main>
+        <!-- 제어 패널 -->
+        <section class="control-panel">
+            <div class="panel-header">
+                <span class="panel-title">1. Select Spirits & Mixers</span>
+                <span class="tag">Step-by-Step Color Blend</span>
+            </div>
+
+            <div>
+                <div class="section-label">Base Spirit (베이스 주류)</div>
+                <div class="grid-buttons">
+                    <button class="btn-ingredient" onclick="addIngredient('Vodka', [245, 245, 250, 0.15], 0.5)">
+                        <div class="ingredient-info">
+                            <div>Vodka (보드카)</div>
+                            <div>Clear / Crisp</div>
+                        </div>
+                        <div class="color-indicator" style="background: rgba(245,245,250,0.8);"></div>
+                    </button>
+                    <button class="btn-ingredient" onclick="addIngredient('Whiskey', [217, 107, 39, 0.85], 0.5)">
+                        <div class="ingredient-info">
+                            <div>Whiskey (위스키)</div>
+                            <div>Amber Red (#D96B27)</div>
+                        </div>
+                        <div class="color-indicator" style="background: #D96B27;"></div>
+                    </button>
+                    <button class="btn-ingredient" onclick="addIngredient('Burgundy Rum', [128, 0, 32, 0.9], 0.5)">
+                        <div class="ingredient-info">
+                            <div>Burgundy Rum (럼)</div>
+                            <div>Deep Burgundy (#800020)</div>
+                        </div>
+                        <div class="color-indicator" style="background: #800020;"></div>
+                    </button>
+                    <button class="btn-ingredient" onclick="addIngredient('Tequila Gold', [242, 169, 0, 0.85], 0.5)">
+                        <div class="ingredient-info">
+                            <div>Tequila Gold (데킬라)</div>
+                            <div>Citrus Gold (#F2A900)</div>
+                        </div>
+                        <div class="color-indicator" style="background: #F2A900;"></div>
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <div class="section-label">Mixers & Capsules (액상/캡슐)</div>
+                <div class="grid-buttons">
+                    <button class="btn-ingredient" onclick="addIngredient('Blue Curaçao', [0, 217, 255, 0.8], 0.5)">
+                        <div class="ingredient-info">
+                            <div>Blue Curaçao</div>
+                            <div>Cyan Blue Glow</div>
+                        </div>
+                        <div class="color-indicator" style="background: #00D9FF;"></div>
+                    </button>
+                    <button class="btn-ingredient" onclick="addIngredient('Cranberry Juice', [200, 20, 60, 0.85], 0.5)">
+                        <div class="ingredient-info">
+                            <div>Cranberry Juice</div>
+                            <div>Ruby Red</div>
+                        </div>
+                        <div class="color-indicator" style="background: #C8143C;"></div>
+                    </button>
+                    <button class="btn-ingredient" onclick="addIngredient('Citrus Soda', [255, 230, 100, 0.5], 0.5)">
+                        <div class="ingredient-info">
+                            <div>Citrus Soda</div>
+                            <div>Fizzy Yellow</div>
+                        </div>
+                        <div class="color-indicator" style="background: #FFE664;"></div>
+                    </button>
+                    <button class="btn-ingredient" onclick="addIngredient('Aromatic Bitters', [100, 40, 20, 0.95], 0.2)">
+                        <div class="ingredient-info">
+                            <div>Aromatic Bitters</div>
+                            <div>Herbal Brown</div>
+                        </div>
+                        <div class="color-indicator" style="background: #642814;"></div>
+                    </button>
+                </div>
+            </div>
+
+            <div class="chamber-summary">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="section-label" style="margin:0;">Recipe Chamber (혼합 레이어)</div>
+                    <button onclick="resetChamber()" style="background:none; border:none; color:var(--text-secondary); font-size:0.75rem; cursor:pointer; text-decoration:underline;">Reset (초기화)</button>
+                </div>
+                <ul class="chamber-list" id="chamberList">
+                    <li class="chamber-item" style="color: var(--text-secondary);">재료를 선택해 챔버에 채워주세요.</li>
+                </ul>
+            </div>
+
+            <button class="btn-shake" id="shakeBtn" onclick="triggerKineticShake()" disabled>
+                <span>⚡ SHAKE & KINETIC MIX</span>
+            </button>
+        </section>
+
+        <!-- 캔버스 디스플레이 패널 -->
+        <section class="display-panel">
+            <div class="panel-header">
+                <span class="panel-title" id="statusTitle">Chamber Empty</span>
+                <span class="tag" style="background:rgba(0,217,255,0.1); color:var(--accent-cyan); border-color:rgba(0,217,255,0.3);">Visual Chamber</span>
+            </div>
+
+            <div class="glass-view-container">
+                <canvas id="cocktailCanvas"></canvas>
+            </div>
+
+            <div class="metrics-bar">
+                <div class="metric-item">
+                    <span class="metric-label">Current Volume</span>
+                    <span class="metric-value" id="volVal">0.0 oz</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Current Color (HEX)</span>
+                    <span class="metric-value" id="hexVal" style="color:var(--text-secondary);">#------</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div><strong>ALCHEMIST CORP.</strong> / Kinetic & Glass Interaction</div>
+        <div>DESIGNED BY ALCHEMIST CO. / 2026</div>
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('cocktailCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let chamber = [];
+        let totalVolume = 0;
+        let currentColor = [20, 20, 25, 0]; // RGBA
+        let isShaking = false;
+        let shakeTime = 0;
+
+        // 시뮬레이션용 파티클
+        let particles = [];
+
+        function resizeCanvas() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function addIngredient(name, colorRgba, volumeOz) {
+            if (totalVolume >= 3.5) return;
+
+            chamber.push({ name, color: colorRgba, volume: volumeOz });
+            totalVolume += volumeOz;
+
+            // 컬러 가산 혼합 알고리즘
+            if (chamber.length === 1) {
+                currentColor = [...colorRgba];
+            } else {
+                let weightPrev = (totalVolume - volumeOz) / totalVolume;
+                let weightNew = volumeOz / totalVolume;
+
+                currentColor[0] = Math.round(currentColor[0] * weightPrev + colorRgba[0] * weightNew);
+                currentColor[1] = Math.round(currentColor[1] * weightPrev + colorRgba[1] * weightNew);
+                currentColor[2] = Math.round(currentColor[2] * weightPrev + colorRgba[2] * weightNew);
+                currentColor[3] = Math.min(1, currentColor[3] * weightPrev + colorRgba[3] * weightNew);
+            }
+
+            // 기포/얼음 파티클 추가
+            for (let i = 0; i < 8; i++) {
+                particles.push({
+                    x: canvas.width / 2 + (Math.random() - 0.5) * 40,
+                    y: canvas.height / 2 + 30,
+                    radius: Math.random() * 3 + 1,
+                    alpha: Math.random() * 0.7 + 0.3,
+                    speedY: Math.random() * 0.8 + 0.2
+                });
+            }
+
+            updateUI();
+        }
+
+        function resetChamber() {
+            chamber = [];
+            totalVolume = 0;
+            currentColor = [20, 20, 25, 0];
+            particles = [];
+            isShaking = false;
+            updateUI();
+        }
+
+        function triggerKineticShake() {
+            if (totalVolume === 0 || isShaking) return;
+
+            isShaking = true;
+            shakeTime = 0;
+            document.getElementById('shakeBtn').disabled = true;
+            document.getElementById('statusTitle').innerText = 'Kinetic Mixing...';
+        }
+
+        function updateUI() {
+            const listEl = document.getElementById('chamberList');
+            const shakeBtn = document.getElementById('shakeBtn');
+            const statusTitle = document.getElementById('statusTitle');
+
+            if (chamber.length === 0) {
+                listEl.innerHTML = '<li class="chamber-item" style="color: var(--text-secondary);">재료를 선택해 챔버에 채워주세요.</li>';
+                shakeBtn.disabled = true;
+                statusTitle.innerText = 'Chamber Empty';
+                document.getElementById('hexVal').innerText = '#------';
+                document.getElementById('hexVal').style.color = 'var(--text-secondary)';
+            } else {
+                listEl.innerHTML = chamber.map(item => `
+                    <li class="chamber-item">
+                        <span>${item.name}</span>
+                        <span>${item.volume} oz</span>
+                    </li>
+                `).join('');
+                shakeBtn.disabled = isShaking;
+                if (!isShaking) statusTitle.innerText = 'Chamber Ready';
+
+                const hex = rgbaToHex(currentColor[0], currentColor[1], currentColor[2]);
+                document.getElementById('hexVal').innerText = hex;
+                document.getElementById('hexVal').style.color = hex;
+            }
+
+            document.getElementById('volVal').innerText = `${totalVolume.toFixed(1)} oz`;
+        }
+
+        function rgbaToHex(r, g, b) {
+            return "#" + (1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1).toUpperCase();
+        }
+
+        // 렌더링 루프
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2 + 20;
+
+            // 잔 아웃라인 파라미터
+            const topWidth = 140;
+            const bottomWidth = 12;
+            const glassHeight = 110;
+
+            // 쉐이킹 시 액체만 부드럽게 흔들리는 물리 파라미터 (절제된 파도 세기)
+            let sloshOffset = 0;
+            if (isShaking) {
+                shakeTime += 0.08;
+                sloshOffset = Math.sin(shakeTime * 3) * 5; // 잔은 고정되고 액체 표면만 잔잔하게 요동침
+
+                if (shakeTime > Math.PI * 4) {
+                    isShaking = false;
+                    document.getElementById('shakeBtn').disabled = false;
+                    document.getElementById('statusTitle').innerText = 'Mixing Complete (완성됨)';
+                }
+            }
+
+            // 1. 마티니 잔 외곽 프레임 (고정)
+            ctx.save();
+            ctx.strokeStyle = '#4a505e';
+            ctx.lineWidth = 3;
+
+            // 잔 보울(Bowl)
+            ctx.beginPath();
+            ctx.moveTo(centerX - topWidth / 2, centerY - glassHeight);
+            ctx.lineTo(centerX + topWidth / 2, centerY - glassHeight);
+            ctx.lineTo(centerX + bottomWidth / 2, centerY);
+            ctx.lineTo(centerX - bottomWidth / 2, centerY);
+            ctx.closePath();
+            ctx.stroke();
+
+            // 스템(Stem) 및 베이스(Base)
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(centerX, centerY + 70);
+            ctx.moveTo(centerX - 35, centerY + 70);
+            ctx.lineTo(centerX + 35, centerY + 70);
+            ctx.stroke();
+
+            // 2. 내부 액체 렌더링
+            if (totalVolume > 0) {
+                const fillRatio = Math.min(1, totalVolume / 3.5);
+                const currentLiquidHeight = glassHeight * fillRatio * 0.85;
+
+                const currentTopY = centerY - currentLiquidHeight;
+                const currentWidth = bottomWidth + (topWidth - bottomWidth) * (currentLiquidHeight / glassHeight);
+
+                ctx.fillStyle = `rgba(${currentColor[0]}, ${currentColor[1]}, ${currentColor[2]}, ${currentColor[3]})`;
+
+                ctx.beginPath();
+                ctx.moveTo(centerX - currentWidth / 2, currentTopY + sloshOffset);
+                // 절제된 액체 물결 곡선
+                ctx.quadraticCurveTo(centerX, currentTopY - sloshOffset, centerX + currentWidth / 2, currentTopY - sloshOffset);
+                ctx.lineTo(centerX + bottomWidth / 2, centerY);
+                ctx.lineTo(centerX - bottomWidth / 2, centerY);
+                ctx.closePath();
+                ctx.fill();
+
+                // 액체 수면 하이라이트
+                ctx.strokeStyle = `rgba(255, 255, 255, 0.4)`;
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(centerX - currentWidth / 2, currentTopY + sloshOffset);
+                ctx.quadraticCurveTo(centerX, currentTopY - sloshOffset, centerX + currentWidth / 2, currentTopY - sloshOffset);
+                ctx.stroke();
+
+                // 파티클 애니메이션
+                particles.forEach((p, idx) => {
+                    p.y -= p.speedY;
+                    if (isShaking) {
+                        p.x += Math.sin(shakeTime + idx) * 1.5;
+                    }
+
+                    ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    if (p.y < currentTopY) {
+                        p.y = centerY - 5;
+                        p.x = centerX + (Math.random() - 0.5) * currentWidth * 0.7;
+                    }
+                });
+            }
+
+            ctx.restore();
+            requestAnimationFrame(render);
+        }
+
+        render();
+    </script>
+</body>
+</html>
